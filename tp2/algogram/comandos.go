@@ -7,13 +7,17 @@ import (
 
 type AlgoGram struct {
 	//usuarios * diccionario.Diccionario[string, string]()
-	usuarioLoggeado string
+	usuarioLoggeado *Usuario
 	hayLoggeado     bool
+	posts *post // *lista.Lista[post] ?
 }
 
-type usuario struct {
-	//nombre
-	//feed
+type post struct {
+	id int
+	usuario *Usuario
+	contenido string // (?
+	// likes *heap.Heap[string]
+	cantLikes int
 }
 
 func (algogram *AlgoGram) Login(nombre string) error {
@@ -36,7 +40,7 @@ func (algogram *AlgoGram) hayUsuarioLoggeado() bool {
 }
 
 func (algogram *AlgoGram) loggearUsuario(nombre string) {
-	algogram.usuarioLoggeado = nombre
+	algogram.usuarioLoggeado.nombre = nombre
 	algogram.hayLoggeado = true
 }
 
@@ -56,7 +60,9 @@ func (algogram *AlgoGram) desloggearUsuario() {
 	algogram.hayLoggeado = false
 }
 
-func PublicarPost()
-func VerProximoPost()
-func LikearPost()
-func MostrarLikes()
+func (algogram *AlgoGram) MostrarLikes(id int) error {
+	if algogram.posts.cantLikes == 0 { // || !heap.Pertenece(id)
+		return errores.ErrorMostrarLikes{}
+	}
+	return nil
+}
