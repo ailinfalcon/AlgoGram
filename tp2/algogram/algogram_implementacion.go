@@ -1,12 +1,13 @@
 package algogram
 
 import (
-	// "tdas/diccionario"
+	"tdas/diccionario"
+	heap "tdas/cola_prioridad"
 	"tp2/errores"
 )
 
-type AlgoGram struct {
-	//usuarios * diccionario.Diccionario[string, string]()
+type Algogram struct {
+	usuarios * diccionario.Diccionario[string, string]()
 	usuarioLoggeado *Usuario
 	hayLoggeado     bool
 	posts *post // *lista.Lista[post] ?
@@ -16,14 +17,23 @@ type post struct {
 	id int
 	usuario *Usuario
 	contenido string // (?
-	// likes *heap.Heap[string]
+	likes *heap.ColaPrioridad[string]
 	cantLikes int
 }
 
+func CrearAlgogram(usuarios diccionario.Diccionario[string, string]) AlgoGram {
+	algogram := new(Algogram)
+	algogram.usuarioLoggeado = nil
+	algogram.hayLoggeado = false
+	algogram.usuarios = usuarios
+
+	return algogram
+}
+
 func (algogram *AlgoGram) Login(nombre string) error {
-	//if !algogram.usuarios.Pertenece(nombre) {
-	//return errores.ErrorUsuarioInexistente{}
-	//}
+	if !algogram.usuarios.Pertenece(nombre) {
+		return errores.ErrorUsuarioInexistente{}
+	}
 
 	if algogram.hayUsuarioLoggeado() {
 		return errores.ErrorUsuarioLoggeado{}
@@ -56,7 +66,7 @@ func (algogram *AlgoGram) Logout() error {
 }
 
 func (algogram *AlgoGram) desloggearUsuario() {
-	//algogram.usuario = " "
+	algogram.usuarioLoggeado = nil
 	algogram.hayLoggeado = false
 }
 
@@ -64,5 +74,6 @@ func (algogram *AlgoGram) MostrarLikes(id int) error {
 	if algogram.posts.cantLikes == 0 { // || !heap.Pertenece(id)
 		return errores.ErrorMostrarLikes{}
 	}
+	
 	return nil
 }
