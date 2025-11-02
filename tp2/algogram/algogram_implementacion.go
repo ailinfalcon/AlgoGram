@@ -3,6 +3,7 @@ package algogram
 import (
 	"tdas/diccionario"
 	heap "tdas/cola_prioridad"
+	"tdas/lista"
 	"tp2/errores"
 )
 
@@ -10,7 +11,7 @@ type Algogram struct {
 	usuarios * diccionario.Diccionario[string, string]()
 	usuarioLoggeado *Usuario
 	hayLoggeado     bool
-	posts *post // *lista.Lista[post] ?
+	posts *lista.Lista[post]
 }
 
 type post struct {

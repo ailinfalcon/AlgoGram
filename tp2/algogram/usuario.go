@@ -1,8 +1,12 @@
 package algogram
 
+import (
+	heap "tdas/cola_prioridad"
+)
+
 type Usuario struct {
 	nombre string
-	//feed *heap
+	feed *heap.ColaPrioridad[]
 }
 
 func PublicarPost()
