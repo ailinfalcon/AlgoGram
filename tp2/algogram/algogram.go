@@ -8,5 +8,8 @@ type AlgoGram interface {
 	Logout() error
 
 	//
-	MostrarLikes(id int)
+	PublicarPost(contenido string) error
+
+	//
+	MostrarLikes(id int) error
 }
