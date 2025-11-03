@@ -3,6 +3,7 @@ package algogram
 import (
 	TDAHeap "tdas/cola_prioridad"
 	TDADiccionario "tdas/diccionario"
+	TDALista "tdas/lista"
 	"tp2/errores"
 )
 
@@ -10,7 +11,7 @@ type Algogram struct {
 	usuarios        TDADiccionario.Diccionario[string, *usuario]
 	usuarioLoggeado *usuario
 	hayLoggeado     bool
-	posts           TDAHeap.ColaPrioridad[post]
+	posts           TDALista.Lista[post]
 }
 
 type usuario struct {
@@ -32,9 +33,19 @@ func CrearAlgogram(usuarios TDADiccionario.Diccionario[string, *usuario]) AlgoGr
 	algogram.usuarioLoggeado = nil
 	algogram.hayLoggeado = false
 	algogram.usuarios = usuarios
+	// algogram.usuarios = TDADiccionario.CrearHash[string, *usuario]()
 	algogram.posts = nil
 
 	return algogram
+}
+
+func CrearUsuario(nombre string, afinidad int) usuario {
+	usuario := new(usuario)
+	usuario.nombre = nombre
+	usuario.afinidad = afinidad
+	usuario.feed = TDAHeap.CrearHeap[post]()
+	
+	return *usuario
 }
 
 func (algogram *Algogram) Login(nombre string) error {
@@ -94,19 +105,59 @@ func (algogram *Algogram) PublicarPost(contenido string) error {
 		return errores.ErrorUsuarioNoLoggeado{}
 	}
 
-	//post := crearNuevoPost(algogram.usuarioLoggeado, contenido)
-	//algogram.posts.Encolar
+	post := crearNuevoPost(algogram.usuarioLoggeado, contenido)
+	algogram.posts.InsertarUltimo(post)
 
 	//falta imprimir "Post Publicado"
 	return nil
 }
 
-func (algogram *Algogram) LikearPost(id int) error
+func (algogram *Algogram) LikearPost(id int) error {
+	if !algogram.hayUsuarioLoggeado() || algogram.posts.Largo() >= id {
+		return errores.ErrorLikearPost{}
+	}
+	
+	iter := algogram.posts.Iterador()
+
+	for i := 0; i <= id; i++ {	// en el peor de los casos O(p)
+		iter.Siguiente()
+	}
+
+	postActual := iter.VerActual()
+
+	if !postActual.likes.Pertenece(algogram.usuarioLoggeado.nombre) {
+		postActual.likes.Guardar(algogram.usuarioLoggeado.nombre, algogram.usuarioLoggeado)  // O(log Up)
+		postActual.cantLikes++
+	}
+
+	// falta imprimir "Post Likeado"
+	return nil
+}
 
 func (algogram *Algogram) MostrarLikes(id int) error {
-	/*if algogram.posts.cantLikes == 0 { // || !heap.Pertenece(id)
+	if algogram.posts.Largo() >= id {	// asumiendo que los posts estan en una lista
 		return errores.ErrorMostrarLikes{}
-	}*/
+	}
+
+	iter := algogram.posts.Iterador()
+
+	for i := 0; i <= id; i++ {	// en el peor de los casos O(p)
+		iter.Siguiente()
+	}
+	postActual := iter.VerActual()
+	if postActual.cantLikes == 0 {
+		return errores.ErrorMostrarLikes{}
+	}
+	// falta imprimir "El post tiene cant likes:"
+
+	iterLikes := postActual.likes.Iterador()
+	for iterLikes.HaySiguiente() {		// O(Up)
+		nombreUsuario, _ := iterLikes.VerActual()
+
+		//imprimir nombreUsuario (?)
+		iterLikes.Siguiente()
+	}
+
 
 	return nil
 }

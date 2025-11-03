@@ -15,7 +15,7 @@ func (e ErrorUsuarioInexistente) Error() string {
 type ErrorUsuarioNoLoggeado struct{}
 
 func (e ErrorUsuarioNoLoggeado) Error() string {
-	return "Error: no habia usuario loggeado."
+	return "Error: no habia usuario loggeado"
 }
 
 type ErrorVerProximoPost struct{}
@@ -24,4 +24,10 @@ type ErrorMostrarLikes struct{}
 
 func (e ErrorMostrarLikes) Error() string {
 	return "Error: Post inexistente o sin likes"
+}
+
+type ErrorLikearPost struct{}
+
+func (e ErrorLikearPost) Error() string {
+	return "Error: usuario no loggeado o post inexistente"
 }

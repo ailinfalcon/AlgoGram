@@ -11,9 +11,12 @@ func main() {
 	defer archivo.Close()
 
 	s := bufio.NewScanner(archivo)
+	cantUsuarios := 0  --> seria la afinidad
+
 	for s.Scan() {
 		usuario := s.Text()
-
+		algogram.CrearUsuario(usuario, cantUsuarios)
+		cantUsuarios++
 	}*/
 
 }
