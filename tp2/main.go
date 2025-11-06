@@ -1,6 +1,7 @@
 package algogram
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 )
@@ -17,4 +18,10 @@ func main() {
 	defer archivo.Close()
 
 	Algogram(archivo)
+
+	s := bufio.NewScanner(os.Stdin)
+	for s.Scan() {
+		linea := s.Text()
+		err := ProcesarComandos(linea)
+	}
 }
