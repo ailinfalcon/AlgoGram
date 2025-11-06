@@ -11,6 +11,9 @@ type AlgoGram interface {
 	PublicarPost(contenido string) error
 
 	//
+	VerProximoPost() error
+
+	//
 	LikearPost(id int) error
 
 	//

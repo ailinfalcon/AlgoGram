@@ -23,7 +23,7 @@ type usuario struct {
 
 type post struct {
 	id        int
-	usuario   *usuario
+	publicador   *usuario
 	contenido string
 	likes     TDADiccionario.DiccionarioOrdenado[string, *usuario]
 	cantLikes int
@@ -60,7 +60,7 @@ func crearUsuario(nombre string, afinidad int) *usuario {
 }
 
 func igualdadPost(post1, post2 post) int {
-	return post1.id - post2.id
+	return post2.id - post1.id
 }
 
 func (algogram *Algogram) Login(nombre string) error {
@@ -107,7 +107,7 @@ func (algogram *Algogram) desloggearUsuario() {
 func crearNuevoPost(u *usuario, contenido string, cant int) post {
 	nuevoPost := new(post)
 	nuevoPost.id = cant - 1
-	nuevoPost.usuario = u
+	nuevoPost.publicador = u
 	nuevoPost.contenido = contenido
 	nuevoPost.cantLikes = 0
 	nuevoPost.likes = nil
@@ -124,6 +124,21 @@ func (algogram *Algogram) PublicarPost(contenido string) error {
 	algogram.posts.InsertarUltimo(post)
 
 	fmt.Print("Post publicado")
+	return nil
+}
+
+func (algogram *Algogram) VerProximoPost() error {
+	if !algogram.hayUsuarioLoggeado() || algogram.usuarioLoggeado.feed.Cantidad() == 0{
+		return errores.ErrorVerProximoPost{}
+	}
+
+	post := algogram.usuarioLoggeado.feed.Desencolar()
+	id := post.id
+	contenido := post.contenido
+	publicador := post.publicador.nombre
+	cantLikes := post.cantLikes
+
+	fmt.Printf("%s dijo: %s\nLikes: %d\nId Post: %d", publicador, contenido, id, cantLikes)
 	return nil
 }
 

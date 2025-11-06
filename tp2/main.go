@@ -17,11 +17,11 @@ func main() {
 
 	defer archivo.Close()
 
-	Algogram(archivo)
+	algogram := Algogram(archivo)
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		linea := s.Text()
-		err := ProcesarComandos(linea)
+		ProcesarComandos(algogram, linea)
 	}
 }

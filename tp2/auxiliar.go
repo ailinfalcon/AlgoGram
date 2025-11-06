@@ -3,9 +3,11 @@ package algogram
 import (
 	"bufio"
 	"os"
+	"strconv"
 	"strings"
 	dic "tdas/diccionario"
 	algogram "tp2/algogram"
+	errores "tp2/errores"
 )
 
 const (
@@ -17,11 +19,41 @@ const (
 	_MOSTRAR_LIKES      = "mostrar_likes"
 )
 
-var comandos = []string{
-	_LOGIN, _LOGOUT, _PUBLICAR, _VER_SIGUIENTE_FEED, _LIKEAR, _MOSTRAR_LIKES,
+type parametro int
+
+const (
+	ninguno parametro = iota
+	texto
+	numero
+)
+
+type comando struct {
+	cmd       string
+	parametro parametro
+	// aplicar func(string) error
 }
 
-func Algogram(archivo *os.File) error {
+/*
+	var comandos = []string{
+		_LOGIN, _LOGOUT, _PUBLICAR, _VER_SIGUIENTE_FEED, _LIKEAR, _MOSTRAR_LIKES,
+	}
+*/
+var comandos = []comando{
+	{_LOGIN, texto}, {_LOGOUT, ninguno}, {_PUBLICAR, texto}, {_VER_SIGUIENTE_FEED, ninguno},
+	{_LIKEAR, numero}, {_MOSTRAR_LIKES, numero},
+}
+
+/*
+	var comandos = []comando{
+		{_LOGIN, texto, algogram.Login()},
+		{_LOGOUT, ninguno, algogram.Logout()},
+		{_PUBLICAR, texto, algogram.PublicarPost()},
+		{_VER_SIGUIENTE_FEED, ninguno, algogram.VerProximoPost()},
+		{_LIKEAR, numero, algogram.LikearPost()},
+		{_MOSTRAR_LIKES, numero, algogram.MostrarLikes()},
+	}
+*/
+func Algogram(archivo *os.File) algogram.AlgoGram {
 	s := bufio.NewScanner(archivo)
 	cantUsuarios := 0 //--> seria la afinidad
 
@@ -32,28 +64,77 @@ func Algogram(archivo *os.File) error {
 		cantUsuarios++
 	}
 
-	algogram.CrearAlgogram(usuarios)
+	algo := algogram.CrearAlgogram(usuarios)
 
-	return nil
+	return algo
 }
 
-func ProcesarComandos(linea string) error {
+func ProcesarComandos(algogram algogram.AlgoGram, linea string) error {
 	token := strings.Fields(linea)
-	cmd, param := token[0], token[1]
+	cmd, params := token[0], token[1]
 
-	if esComandoValido(cmd) {
-
+	if !esComandoValido(cmd) {
+		return errores.ErrorComandoInvalido{}
 	}
 
+	asignarComando(algogram, cmd, params)
 	return nil
 }
+
+// asignar comando con switch
+
+func asignarComando(algogram algogram.AlgoGram, comando, parametro string) {
+	switch comando {
+	case _LOGIN:
+		algogram.Login(parametro)
+	case _LOGOUT:
+		algogram.Logout()
+	case _PUBLICAR:
+		algogram.PublicarPost(parametro)
+	case _VER_SIGUIENTE_FEED:
+		algogram.VerProximoPost()
+	case _LIKEAR:
+		num, _ := esNumero(parametro)
+		algogram.LikearPost(num)
+	case _MOSTRAR_LIKES:
+		num, _ := esNumero(parametro)
+		algogram.MostrarLikes(num)
+	}
+}
+
+// funcionaria si el struct comando fuese de tipo genérico
+/*func asignarComando(algogram algogram.AlgoGram, comandoIngresado, parametro string) {
+	for _, comando := range comandos {
+		if comando.cmd == comandoIngresado {
+			if comando.parametro == ninguno {
+				comando.aplicar()
+			}
+			if comando.parametro == texto {
+				comando.aplicar(parametro)
+			}
+			if comando.parametro == numero {
+				num, _ := esNumero(comando.cmd)
+				comando.aplicar(num)
+			}
+		}
+	}
+}
+*/
 
 func esComandoValido(cmd string) bool {
 	for _, comando := range comandos {
-		if comando == cmd {
+		if comando.cmd == cmd {
 			return true
 		}
 	}
 
 	return false
+}
+
+func esNumero(param string) (int, bool) {
+	parametro, err := strconv.Atoi(param)
+	if err != nil {
+		return 0, false
+	}
+	return parametro, true
 }

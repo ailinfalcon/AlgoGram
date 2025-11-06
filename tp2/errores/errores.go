@@ -20,6 +20,10 @@ func (e ErrorUsuarioNoLoggeado) Error() string {
 
 type ErrorVerProximoPost struct{}
 
+func (e ErrorVerProximoPost) Error() string {
+	return "Usuario no loggeado o no hay mas posts para ver"
+}
+
 type ErrorMostrarLikes struct{}
 
 func (e ErrorMostrarLikes) Error() string {
@@ -30,4 +34,10 @@ type ErrorLikearPost struct{}
 
 func (e ErrorLikearPost) Error() string {
 	return "Error: usuario no loggeado o post inexistente"
+}
+
+type ErrorComandoInvalido struct{}
+
+func (e ErrorComandoInvalido) Error() string {
+	return "El comando ingresado no es válido"
 }
