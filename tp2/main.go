@@ -1,7 +1,13 @@
-package main
+package algogram
+
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
-	/*archivo, err := os.Open()
+	ruta := os.Args
+	archivo, err := os.Open(ruta[1])
 
 	if err != nil {
 		fmt.Printf("Error al abrir el archivo")
@@ -10,13 +16,5 @@ func main() {
 
 	defer archivo.Close()
 
-	s := bufio.NewScanner(archivo)
-	cantUsuarios := 0  --> seria la afinidad
-
-	for s.Scan() {
-		usuario := s.Text()
-		algogram.CrearUsuario(usuario, cantUsuarios)
-		cantUsuarios++
-	}*/
-
+	Algogram(archivo)
 }

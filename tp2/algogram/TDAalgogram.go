@@ -1,4 +1,4 @@
-package algogram
+package TDAalgogram
 
 type AlgoGram interface {
 	///
@@ -9,6 +9,9 @@ type AlgoGram interface {
 
 	//
 	PublicarPost(contenido string) error
+
+	//
+	LikearPost(id int) error
 
 	//
 	MostrarLikes(id int) error
