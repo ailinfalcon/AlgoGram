@@ -2,20 +2,20 @@ package TDAalgogram
 
 type AlgoGram interface {
 	///
-	Login(nombre string) error
+	Login(nombre string)
 
 	//
-	Logout() error
+	Logout()
 
 	//
-	PublicarPost(contenido string) error
+	PublicarPost(contenido string)
 
 	//
-	VerProximoPost() error
+	VerProximoPost() post
 
 	//
-	LikearPost(id int) error
+	LikearPost(id int)
 
 	//
-	MostrarLikes(id int) error
+	MostrarLikes(id int) ([]string, int)
 }

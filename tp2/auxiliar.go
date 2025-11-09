@@ -1,13 +1,13 @@
-package algogram
+package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
 	dic "tdas/diccionario"
 	algogram "tp2/algogram"
-	errores "tp2/errores"
 )
 
 const (
@@ -53,7 +53,7 @@ var comandos = []comando{
 		{_MOSTRAR_LIKES, numero, algogram.MostrarLikes()},
 	}
 */
-func Algogram(archivo *os.File) algogram.AlgoGram {
+func CargarUsuarios(archivo *os.File) algogram.AlgoGram {
 	s := bufio.NewScanner(archivo)
 	cantUsuarios := 0 //--> seria la afinidad
 
@@ -69,21 +69,21 @@ func Algogram(archivo *os.File) algogram.AlgoGram {
 	return algo
 }
 
-func ProcesarComandos(algogram algogram.AlgoGram, linea string) error {
+func ProcesarComandos(algogram algogram.AlgoGram, linea string) {
 	token := strings.Fields(linea)
 	cmd, params := token[0], token[1]
 
 	if !esComandoValido(cmd) {
-		return errores.ErrorComandoInvalido{}
+
 	}
 
 	asignarComando(algogram, cmd, params)
-	return nil
 }
 
 // asignar comando con switch
 
 func asignarComando(algogram algogram.AlgoGram, comando, parametro string) {
+
 	switch comando {
 	case _LOGIN:
 		algogram.Login(parametro)
@@ -92,14 +92,24 @@ func asignarComando(algogram algogram.AlgoGram, comando, parametro string) {
 	case _PUBLICAR:
 		algogram.PublicarPost(parametro)
 	case _VER_SIGUIENTE_FEED:
-		algogram.VerProximoPost()
+		ejecutarPublicarPost(algogram)
 	case _LIKEAR:
 		num, _ := esNumero(parametro)
 		algogram.LikearPost(num)
 	case _MOSTRAR_LIKES:
 		num, _ := esNumero(parametro)
-		algogram.MostrarLikes(num)
+		likes, cantidad := algogram.MostrarLikes(num)
+		fmt.Printf("El post tiene %d likes", cantidad)
+		fmt.Println(likes)
 	}
+}
+
+func ejecutarPublicarPost(algogram algogram.AlgoGram) {
+	res := algogram.VerProximoPost()
+	fmt.Printf(
+		"Post ID %d\n%v dijo: %v\nLikes: %d\n",
+		res.Id, res.Publicador, res.Contenido, res.CantLikes,
+	)
 }
 
 // funcionaria si el struct comando fuese de tipo genérico

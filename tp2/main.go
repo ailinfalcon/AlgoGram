@@ -1,4 +1,4 @@
-package algogram
+package main
 
 import (
 	"bufio"
@@ -17,7 +17,7 @@ func main() {
 
 	defer archivo.Close()
 
-	algogram := Algogram(archivo)
+	algogram := CargarUsuarios(archivo)
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {

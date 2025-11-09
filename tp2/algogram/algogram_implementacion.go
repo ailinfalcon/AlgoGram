@@ -5,7 +5,6 @@ import (
 	TDAHeap "tdas/cola_prioridad"
 	TDADiccionario "tdas/diccionario"
 	TDALista "tdas/lista"
-	"tp2/errores"
 )
 
 type Algogram struct {
@@ -22,17 +21,25 @@ type usuario struct {
 }
 
 type post struct {
-	id        int
-	publicador   *usuario
-	contenido string
-	likes     TDADiccionario.DiccionarioOrdenado[string, *usuario]
-	cantLikes int
+	Id         int
+	Publicador *usuario
+	Contenido  string
+	Likes      TDADiccionario.DiccionarioOrdenado[string, *usuario]
+	CantLikes  int
 }
 
-func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) AlgoGram {
-	algogram := new(Algogram)
-	algogram.usuarioLoggeado = nil
-	algogram.hayLoggeado = false
+func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) *Algogram {
+	usuarios := cargarUsuarios(us)
+
+	return &Algogram{
+		usuarioLoggeado: nil,
+		hayLoggeado:     false,
+		usuarios:        usuarios,
+		posts:           nil,
+	}
+}
+
+func cargarUsuarios(us TDADiccionario.Diccionario[string, int]) TDADiccionario.Diccionario[string, *usuario] {
 	usuarios := TDADiccionario.CrearHash[string, *usuario](func(a, b string) bool { return a == b })
 
 	iter := us.Iterador()
@@ -44,10 +51,7 @@ func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) AlgoGram {
 		iter.Siguiente()
 	}
 
-	algogram.usuarios = usuarios
-	algogram.posts = nil
-
-	return algogram
+	return usuarios
 }
 
 func crearUsuario(nombre string, afinidad int) *usuario {
@@ -60,22 +64,21 @@ func crearUsuario(nombre string, afinidad int) *usuario {
 }
 
 func igualdadPost(post1, post2 post) int {
-	return post2.id - post1.id
+	return post2.Id - post1.Id
 }
 
-func (algogram *Algogram) Login(nombre string) error {
+func (algogram *Algogram) Login(nombre string) {
 	if !algogram.usuarios.Pertenece(nombre) {
-		return errores.ErrorUsuarioInexistente{}
+		fmt.Printf("Error: Error: Ya habia un usuario loggeado\n")
+		return
 	}
 
 	if algogram.hayUsuarioLoggeado() {
-		return errores.ErrorUsuarioLoggeado{}
+		fmt.Printf("Error: usuario no existente\n")
+		return
 	}
 
 	algogram.loggearUsuario(nombre)
-
-	fmt.Printf("Hola %s", nombre)
-	return nil
 }
 
 func (algogram *Algogram) hayUsuarioLoggeado() bool {
@@ -88,15 +91,12 @@ func (algogram *Algogram) loggearUsuario(nombre string) {
 	algogram.hayLoggeado = true
 }
 
-func (algogram *Algogram) Logout() error {
+func (algogram *Algogram) Logout() {
 	if !algogram.hayUsuarioLoggeado() {
-		return errores.ErrorUsuarioNoLoggeado{}
+		fmt.Printf("Error: no habia usuario loggeado\n")
 	}
 
 	algogram.desloggearUsuario()
-
-	fmt.Print("Adios")
-	return nil
 }
 
 func (algogram *Algogram) desloggearUsuario() {
@@ -106,45 +106,42 @@ func (algogram *Algogram) desloggearUsuario() {
 
 func crearNuevoPost(u *usuario, contenido string, cant int) post {
 	nuevoPost := new(post)
-	nuevoPost.id = cant - 1
-	nuevoPost.publicador = u
-	nuevoPost.contenido = contenido
-	nuevoPost.cantLikes = 0
-	nuevoPost.likes = nil
+	nuevoPost.Id = cant - 1
+	nuevoPost.Publicador = u
+	nuevoPost.Contenido = contenido
+	nuevoPost.CantLikes = 0
+	nuevoPost.Likes = nil
 
 	return *nuevoPost
 }
 
-func (algogram *Algogram) PublicarPost(contenido string) error {
+func (algogram *Algogram) PublicarPost(contenido string) {
 	if !algogram.hayUsuarioLoggeado() {
-		return errores.ErrorUsuarioNoLoggeado{}
+		fmt.Printf("Error: no habia usuario loggeado\n")
+		return
 	}
 
 	post := crearNuevoPost(algogram.usuarioLoggeado, contenido, algogram.posts.Largo())
 	algogram.posts.InsertarUltimo(post)
-
-	fmt.Print("Post publicado")
-	return nil
 }
 
-func (algogram *Algogram) VerProximoPost() error {
-	if !algogram.hayUsuarioLoggeado() || algogram.usuarioLoggeado.feed.Cantidad() == 0{
-		return errores.ErrorVerProximoPost{}
+func (algogram *Algogram) VerProximoPost() post {
+	var p post
+
+	if !algogram.hayUsuarioLoggeado() || algogram.usuarioLoggeado.feed.Cantidad() == 0 {
+		fmt.Printf("Usuario no loggeado o no hay mas posts para ver\n")
+		return p
 	}
 
-	post := algogram.usuarioLoggeado.feed.Desencolar()
-	id := post.id
-	contenido := post.contenido
-	publicador := post.publicador.nombre
-	cantLikes := post.cantLikes
+	p = algogram.usuarioLoggeado.feed.Desencolar()
 
-	fmt.Printf("%s dijo: %s\nLikes: %d\nId Post: %d", publicador, contenido, id, cantLikes)
-	return nil
+	return p
 }
 
-func (algogram *Algogram) LikearPost(id int) error {
+func (algogram *Algogram) LikearPost(id int) {
 	if !algogram.hayUsuarioLoggeado() || algogram.posts.Largo() >= id {
-		return errores.ErrorLikearPost{}
+		fmt.Printf("Error: Usuario no loggeado o Post inexistente\n")
+		return
 	}
 
 	iter := algogram.posts.Iterador()
@@ -155,18 +152,17 @@ func (algogram *Algogram) LikearPost(id int) error {
 
 	postActual := iter.VerActual()
 
-	if !postActual.likes.Pertenece(algogram.usuarioLoggeado.nombre) {
-		postActual.likes.Guardar(algogram.usuarioLoggeado.nombre, algogram.usuarioLoggeado) // O(log Up)
-		postActual.cantLikes++
+	if !postActual.Likes.Pertenece(algogram.usuarioLoggeado.nombre) {
+		postActual.Likes.Guardar(algogram.usuarioLoggeado.nombre, algogram.usuarioLoggeado) // O(log Up)
+		postActual.CantLikes++
 	}
-
-	fmt.Print("Post likeado")
-	return nil
 }
 
-func (algogram *Algogram) MostrarLikes(id int) error {
+func (algogram *Algogram) MostrarLikes(id int) ([]string, int) {
+	var likes []string
 	if algogram.posts.Largo() >= id { // asumiendo que los posts estan en una lista
-		return errores.ErrorMostrarLikes{}
+		fmt.Printf("Error: Post inexistente o sin likes\n")
+		return likes, 0
 	}
 
 	iter := algogram.posts.Iterador()
@@ -175,19 +171,17 @@ func (algogram *Algogram) MostrarLikes(id int) error {
 		iter.Siguiente()
 	}
 	postActual := iter.VerActual()
-	if postActual.cantLikes == 0 {
-		return errores.ErrorMostrarLikes{}
+	if postActual.CantLikes == 0 {
+		fmt.Printf("Error: Post inexistente o sin likes\n")
+		return likes, 0
 	}
-	fmt.Printf("El post tiene %d likes:", postActual.cantLikes)
 
-	iterLikes := postActual.likes.Iterador()
+	iterLikes := postActual.Likes.Iterador()
 	for iterLikes.HaySiguiente() { // O(Up)
 		nombreUsuario, _ := iterLikes.VerActual()
-
-		fmt.Print(nombreUsuario)
-
+		likes = append(likes, nombreUsuario)
 		iterLikes.Siguiente()
 	}
 
-	return nil
+	return likes, postActual.CantLikes
 }
