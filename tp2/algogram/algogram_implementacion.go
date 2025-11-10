@@ -11,12 +11,12 @@ type Algogram struct {
 	usuarios        TDADiccionario.Diccionario[string, *usuario]
 	usuarioLoggeado *usuario
 	hayLoggeado     bool
-	posts           TDALista.Lista[post]
+	posts           TDALista.Lista[*post]
 }
 
 type usuario struct {
 	nombre   string
-	feed     TDAHeap.ColaPrioridad[post]
+	feed     TDAHeap.ColaPrioridad[*postFeed]
 	afinidad int
 }
 
@@ -28,6 +28,11 @@ type post struct {
 	cantLikes  int
 }
 
+type postFeed struct { // cambiar nombre
+	post     *post
+	afinidad int // afinidad del usuario al cual le pertenece el feed
+}
+
 func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) *Algogram {
 	usuarios := cargarUsuarios(us)
 
@@ -35,7 +40,7 @@ func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) *Algogram {
 		usuarioLoggeado: nil,
 		hayLoggeado:     false,
 		usuarios:        usuarios,
-		posts:           TDALista.CrearListaEnlazada[post](),
+		posts:           TDALista.CrearListaEnlazada[*post](),
 	}
 }
 
@@ -58,13 +63,27 @@ func crearUsuario(nombre string, afinidad int) *usuario {
 	usuario := new(usuario)
 	usuario.nombre = nombre
 	usuario.afinidad = afinidad
-	usuario.feed = TDAHeap.CrearHeap[post](igualdadPost) // Hay que hacer una funcion para que muestre por afinidad
+	usuario.feed = TDAHeap.CrearHeap[*postFeed](igualdadPostFeed) // Hay que hacer una funcion para que muestre por afinidad
 
 	return usuario
 }
 
-func igualdadPost(post1, post2 post) int {
-	return post2.id - post1.id
+func igualdadPostFeed(dato1, dato2 *postFeed) int {
+	afinidad1 := abs(dato1.afinidad - dato1.post.publicador.afinidad) // es igual a dato2.afinidad
+	afinidad2 := abs(dato2.afinidad - dato2.post.publicador.afinidad)
+	res := afinidad2 - afinidad1
+
+	if res == 0 {
+		res = dato2.post.id - dato1.post.id
+	}
+	return res
+}
+
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
 }
 
 func (algogram *Algogram) HayLoggeado() bool {
@@ -109,7 +128,7 @@ func (algogram *Algogram) desloggearUsuario() {
 	algogram.hayLoggeado = false
 }
 
-func crearNuevoPost(u *usuario, contenido string, cant int) post {
+func crearNuevoPost(u *usuario, contenido string, cant int) *post {
 	nuevoPost := new(post)
 	nuevoPost.id = cant
 	nuevoPost.publicador = u
@@ -117,7 +136,14 @@ func crearNuevoPost(u *usuario, contenido string, cant int) post {
 	nuevoPost.cantLikes = 0
 	nuevoPost.likes = nil
 
-	return *nuevoPost
+	return nuevoPost
+}
+
+func crearNuevoPostFeed(post *post, afinidad int) *postFeed {
+	nuevoPostFeed := new(postFeed)
+	nuevoPostFeed.post = post
+	nuevoPostFeed.afinidad = afinidad
+	return nuevoPostFeed
 }
 
 func (algogram *Algogram) PublicarPost(contenido string) {
@@ -133,7 +159,8 @@ func (algogram *Algogram) PublicarPost(contenido string) {
 	for iter.HaySiguiente() {
 		nombre, usuario := iter.VerActual()
 		if nombre != algogram.usuarioLoggeado.nombre {
-			usuario.feed.Encolar(post)
+			postFeed := crearNuevoPostFeed(post, usuario.afinidad)
+			usuario.feed.Encolar(postFeed)
 		}
 		iter.Siguiente()
 	}
@@ -145,9 +172,9 @@ func (algogram *Algogram) VerProximoPost() (int, string, string, int) {
 		return 0, "", "", 0
 	}
 
-	p := algogram.usuarioLoggeado.feed.Desencolar()
+	postFeed := algogram.usuarioLoggeado.feed.Desencolar()
 
-	return p.id, p.publicador.nombre, p.contenido, p.cantLikes // re feo jajaj
+	return postFeed.post.id, postFeed.post.publicador.nombre, postFeed.post.contenido, postFeed.post.cantLikes // re feo jajaj
 	// podria hacerse primitiva ObtenerPost(id) (?
 }
 
