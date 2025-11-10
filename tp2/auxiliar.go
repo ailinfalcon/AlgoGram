@@ -70,13 +70,20 @@ func CargarUsuarios(archivo *os.File) algogram.AlgoGram {
 }
 
 func ProcesarComandos(algogram algogram.AlgoGram, linea string) {
-	token := strings.Fields(linea)
-	cmd, params := token[0], token[1]
+	/*
+		token := strings.Fields(linea)
+		cmd := token[0]
+		var params string
 
-	if !esComandoValido(cmd) {
+		comando, esValido := buscarComando(cmd)
+		if comando.parametro != ninguno {
+			params = token[1]
+		}
+		if !esValido {
 
-	}
-
+		}
+	*/
+	cmd, params, _ := strings.Cut(linea, " ") // corta la linea en el primer " "
 	asignarComando(algogram, cmd, params)
 }
 
@@ -86,16 +93,16 @@ func asignarComando(algogram algogram.AlgoGram, comando, parametro string) {
 
 	switch comando {
 	case _LOGIN:
-		algogram.Login(parametro)
+		ejecutarLogin(algogram, parametro)
 	case _LOGOUT:
-		algogram.Logout()
+		ejecutarLogout(algogram)
 	case _PUBLICAR:
 		algogram.PublicarPost(parametro)
-	case _VER_SIGUIENTE_FEED:
 		ejecutarPublicarPost(algogram)
+	case _VER_SIGUIENTE_FEED:
+		ejecutarVerProximoPost(algogram)
 	case _LIKEAR:
-		num, _ := esNumero(parametro)
-		algogram.LikearPost(num)
+		ejecutarLikearPost(algogram, parametro)
 	case _MOSTRAR_LIKES:
 		num, _ := esNumero(parametro)
 		likes, cantidad := algogram.MostrarLikes(num)
@@ -104,12 +111,44 @@ func asignarComando(algogram algogram.AlgoGram, comando, parametro string) {
 	}
 }
 
+func ejecutarLogin(algogram algogram.AlgoGram, parametro string) {
+	hayLoggeadoInicial := algogram.HayLoggeado()
+	nombre := algogram.Login(parametro)
+	if !hayLoggeadoInicial && parametro == nombre {
+		fmt.Printf("Hola %v\n", nombre)
+	}
+}
+
+func ejecutarLogout(algogram algogram.AlgoGram) {
+	hayLoggeadoInicial := algogram.HayLoggeado()
+	algogram.Logout()
+	if hayLoggeadoInicial {
+		fmt.Println("Adios")
+	}
+}
+
 func ejecutarPublicarPost(algogram algogram.AlgoGram) {
-	res := algogram.VerProximoPost()
-	fmt.Printf(
-		"Post ID %d\n%v dijo: %v\nLikes: %d\n",
-		res.Id, res.Publicador, res.Contenido, res.CantLikes,
-	)
+	if algogram.HayLoggeado() {
+		fmt.Println("Post publicado")
+	}
+}
+
+func ejecutarVerProximoPost(algogram algogram.AlgoGram) {
+	id, publicador, contenido, cantLikes := algogram.VerProximoPost()
+	if algogram.HayLoggeado() && contenido != "" {
+		fmt.Printf(
+			"Post ID %d\n%v dijo: %v\nLikes: %d\n",
+			id, publicador, contenido, cantLikes,
+		)
+	}
+}
+
+func ejecutarLikearPost(algogram algogram.AlgoGram, param string) {
+	num, _ := esNumero(param)
+	algogram.LikearPost(num)
+	if algogram.HayLoggeado() { // falta chequear que el post exista
+		fmt.Println("Post likeado")
+	}
 }
 
 // funcionaria si el struct comando fuese de tipo genérico
@@ -131,14 +170,14 @@ func ejecutarPublicarPost(algogram algogram.AlgoGram) {
 }
 */
 
-func esComandoValido(cmd string) bool {
+func buscarComando(cmd string) (comando, bool) {
 	for _, comando := range comandos {
 		if comando.cmd == cmd {
-			return true
+			return comando, true
 		}
 	}
 
-	return false
+	return comando{}, false
 }
 
 func esNumero(param string) (int, bool) {

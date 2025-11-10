@@ -1,21 +1,25 @@
 package TDAalgogram
 
 type AlgoGram interface {
+
 	///
-	Login(nombre string)
+	HayLoggeado() bool
+
+	///
+	Login(string) string
 
 	//
 	Logout()
 
 	//
-	PublicarPost(contenido string)
+	PublicarPost(string)
 
 	//
-	VerProximoPost() post
+	VerProximoPost() (int, string, string, int)
 
 	//
-	LikearPost(id int)
+	LikearPost(int)
 
 	//
-	MostrarLikes(id int) ([]string, int)
+	MostrarLikes(int) ([]string, int)
 }
