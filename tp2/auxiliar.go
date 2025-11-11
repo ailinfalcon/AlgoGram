@@ -103,10 +103,7 @@ func asignarComando(algogram algogram.AlgoGram, comando, parametro string) {
 	case _LIKEAR:
 		ejecutarLikearPost(algogram, parametro)
 	case _MOSTRAR_LIKES:
-		num, _ := esNumero(parametro)
-		likes, cantidad := algogram.MostrarLikes(num)
-		fmt.Printf("El post tiene %d likes", cantidad)
-		fmt.Println(likes)
+		ejecutarMostrarLikes(algogram, parametro)
 	}
 }
 
@@ -144,6 +141,22 @@ func ejecutarLikearPost(algogram algogram.AlgoGram, param string) {
 	num, _ := esNumero(param)
 	if algogram.LikearPost(num) { // falta chequear que el post exista
 		fmt.Println("Post likeado")
+	}
+}
+
+func ejecutarMostrarLikes(algogram algogram.AlgoGram, parametro string) {
+	id, _ := esNumero(parametro)
+	likes, cantidad := algogram.MostrarLikes(id)
+
+	if cantidad > 0 {
+		fmt.Printf("El post tiene %d likes:\n", cantidad)
+		imprimirUsuarios(likes)
+	}
+}
+
+func imprimirUsuarios(likes []string) {
+	for _, usuario := range likes {
+		fmt.Printf("\t%v\n", usuario)
 	}
 }
 

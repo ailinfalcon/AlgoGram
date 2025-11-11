@@ -200,14 +200,14 @@ func (algogram *Algogram) LikearPost(id int) bool {
 
 func (algogram *Algogram) MostrarLikes(id int) ([]string, int) {
 	var likes []string
-	if algogram.posts.Largo() >= id { // asumiendo que los posts estan en una lista
+	if id >= algogram.posts.Largo() || id < 0 { // asumiendo que los posts estan en una lista
 		fmt.Printf("Error: Post inexistente o sin likes\n")
 		return likes, 0
 	}
 
 	iter := algogram.posts.Iterador()
 
-	for i := 0; i <= id; i++ { // en el peor de los casos O(p)
+	for i := 0; i < id; i++ { // en el peor de los casos O(p)
 		iter.Siguiente()
 	}
 	postActual := iter.VerActual()
