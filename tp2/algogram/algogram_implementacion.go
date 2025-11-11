@@ -11,7 +11,6 @@ import (
 type Algogram struct {
 	usuarios        TDADiccionario.Diccionario[string, *usuario]
 	usuarioLoggeado *usuario
-	hayLoggeado     bool
 	posts           TDALista.Lista[*post]
 }
 
@@ -39,7 +38,6 @@ func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) *Algogram {
 
 	return &Algogram{
 		usuarioLoggeado: nil,
-		hayLoggeado:     false,
 		usuarios:        usuarios,
 		posts:           TDALista.CrearListaEnlazada[*post](),
 	}
@@ -88,10 +86,7 @@ func abs(a int) int {
 }
 
 func (algogram *Algogram) HayLoggeado() bool {
-	if algogram.hayLoggeado {
-		return true
-	}
-	return false
+	return algogram.usuarioLoggeado != nil
 }
 
 func (algogram *Algogram) Login(nombre string) string {
@@ -100,7 +95,7 @@ func (algogram *Algogram) Login(nombre string) string {
 		return ""
 	}
 
-	if algogram.hayLoggeado {
+	if algogram.HayLoggeado() {
 		fmt.Printf("Error: Ya habia un usuario loggeado\n")
 		return ""
 	}
@@ -112,21 +107,21 @@ func (algogram *Algogram) Login(nombre string) string {
 func (algogram *Algogram) loggearUsuario(nombre string) {
 	usuario := algogram.usuarios.Obtener(nombre)
 	algogram.usuarioLoggeado = usuario
-	algogram.hayLoggeado = true
 }
 
-func (algogram *Algogram) Logout() {
-	if !algogram.hayLoggeado {
+func (algogram *Algogram) Logout() bool {
+	if !algogram.HayLoggeado() {
 		fmt.Printf("Error: no habia usuario loggeado\n")
-		return
+		return false
 	}
 
 	algogram.desloggearUsuario()
+
+	return true
 }
 
 func (algogram *Algogram) desloggearUsuario() {
 	algogram.usuarioLoggeado = nil
-	algogram.hayLoggeado = false
 }
 
 func crearNuevoPost(u *usuario, contenido string, cant int) *post {
@@ -147,10 +142,10 @@ func crearNuevoPostFeed(post *post, afinidad int) *postFeed {
 	return nuevoPostFeed
 }
 
-func (algogram *Algogram) PublicarPost(contenido string) {
-	if !algogram.hayLoggeado {
+func (algogram *Algogram) PublicarPost(contenido string) bool {
+	if !algogram.HayLoggeado() {
 		fmt.Printf("Error: no habia usuario loggeado\n")
-		return
+		return false
 	}
 
 	post := crearNuevoPost(algogram.usuarioLoggeado, contenido, algogram.posts.Largo())
@@ -165,10 +160,12 @@ func (algogram *Algogram) PublicarPost(contenido string) {
 		}
 		iter.Siguiente()
 	}
+
+	return true
 }
 
 func (algogram *Algogram) VerProximoPost() (int, string, string, int) {
-	if !algogram.hayLoggeado || algogram.usuarioLoggeado.feed.Cantidad() == 0 {
+	if !algogram.HayLoggeado() || algogram.usuarioLoggeado.feed.Cantidad() == 0 {
 		fmt.Printf("Usuario no loggeado o no hay mas posts para ver\n")
 		return 0, "", "", 0
 	}
@@ -179,15 +176,15 @@ func (algogram *Algogram) VerProximoPost() (int, string, string, int) {
 	// podria hacerse primitiva ObtenerPost(id) (?
 }
 
-func (algogram *Algogram) LikearPost(id int) {
-	if !algogram.hayLoggeado || algogram.posts.Largo() >= id {
+func (algogram *Algogram) LikearPost(id int) bool {
+	if !algogram.HayLoggeado() || id >= algogram.posts.Largo() || id < 0 {
 		fmt.Printf("Error: Usuario no loggeado o Post inexistente\n")
-		return
+		return false
 	}
 
 	iter := algogram.posts.Iterador()
 
-	for i := 0; i <= id; i++ { // en el peor de los casos O(p)
+	for i := 0; i < id; i++ { // en el peor de los casos O(p)
 		iter.Siguiente()
 	}
 
@@ -197,6 +194,8 @@ func (algogram *Algogram) LikearPost(id int) {
 		postActual.likes.Guardar(algogram.usuarioLoggeado.nombre, algogram.usuarioLoggeado) // O(log Up)
 		postActual.cantLikes++
 	}
+
+	return true
 }
 
 func (algogram *Algogram) MostrarLikes(id int) ([]string, int) {

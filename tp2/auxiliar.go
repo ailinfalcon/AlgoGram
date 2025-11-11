@@ -97,8 +97,7 @@ func asignarComando(algogram algogram.AlgoGram, comando, parametro string) {
 	case _LOGOUT:
 		ejecutarLogout(algogram)
 	case _PUBLICAR:
-		algogram.PublicarPost(parametro)
-		ejecutarPublicarPost(algogram)
+		ejecutarPublicarPost(algogram, parametro)
 	case _VER_SIGUIENTE_FEED:
 		ejecutarVerProximoPost(algogram)
 	case _LIKEAR:
@@ -120,15 +119,13 @@ func ejecutarLogin(algogram algogram.AlgoGram, parametro string) {
 }
 
 func ejecutarLogout(algogram algogram.AlgoGram) {
-	hayLoggeadoInicial := algogram.HayLoggeado()
-	algogram.Logout()
-	if hayLoggeadoInicial {
+	if algogram.Logout() {
 		fmt.Println("Adios")
 	}
 }
 
-func ejecutarPublicarPost(algogram algogram.AlgoGram) {
-	if algogram.HayLoggeado() {
+func ejecutarPublicarPost(algogram algogram.AlgoGram, parametro string) {
+	if algogram.PublicarPost(parametro) {
 		fmt.Println("Post publicado")
 	}
 }
@@ -145,8 +142,7 @@ func ejecutarVerProximoPost(algogram algogram.AlgoGram) {
 
 func ejecutarLikearPost(algogram algogram.AlgoGram, param string) {
 	num, _ := esNumero(param)
-	algogram.LikearPost(num)
-	if algogram.HayLoggeado() { // falta chequear que el post exista
+	if algogram.LikearPost(num) { // falta chequear que el post exista
 		fmt.Println("Post likeado")
 	}
 }

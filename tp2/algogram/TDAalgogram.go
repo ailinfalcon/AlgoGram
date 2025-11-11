@@ -9,16 +9,16 @@ type AlgoGram interface {
 	Login(string) string
 
 	//
-	Logout()
+	Logout() bool
 
 	//
-	PublicarPost(string)
+	PublicarPost(string) bool
 
 	//
 	VerProximoPost() (int, string, string, int)
 
 	//
-	LikearPost(int)
+	LikearPost(int) bool
 
 	//
 	MostrarLikes(int) ([]string, int)
