@@ -2,6 +2,7 @@ package TDAalgogram
 
 import (
 	"fmt"
+	"strings"
 	TDAHeap "tdas/cola_prioridad"
 	TDADiccionario "tdas/diccionario"
 	TDALista "tdas/lista"
@@ -134,7 +135,7 @@ func crearNuevoPost(u *usuario, contenido string, cant int) *post {
 	nuevoPost.publicador = u
 	nuevoPost.contenido = contenido
 	nuevoPost.cantLikes = 0
-	nuevoPost.likes = nil
+	nuevoPost.likes = TDADiccionario.CrearABB[string, *usuario](strings.Compare)
 
 	return nuevoPost
 }
