@@ -1,19 +1,27 @@
 package TDAPost
 
+import (
+	TDADiccionario "tdas/diccionario"
+	TDAUsuario "tp2/usuario"
+)
+
 type Post interface {
 
-    //
-    ObtenerId() int
+	//
+	ObtenerId() int
 
-    //
-    ObtenerAutor() string
+	//
+	ObtenerAutor() TDAUsuario.Usuario
 
-    //
-    ObtenerContenido() string
+	//
+	ObtenerContenido() string
 
-    //
-    ObtenerLikes() []string
+	//
+	ObtenerLikes() TDADiccionario.DiccionarioOrdenado[string, TDAUsuario.Usuario]
 
-    //
-    ObtenerCantLikes() int
+	//
+	ObtenerCantLikes() int
+
+	//
+	GuardarLike(string, TDAUsuario.Usuario)
 }

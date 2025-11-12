@@ -1,26 +1,26 @@
 package TDAPost
 
 import (
-	"fmt"
 	"strings"
 	TDADiccionario "tdas/diccionario"
+	TDAUsuario "tp2/usuario"
 )
 
 type post struct {
-	id int
-	contenido string
-	publicador string
-	cantLikes int
-	likes TDADiccionario.DiccionarioOrdenado[string, string]
+	id            int
+	contenido     string
+	publicador    TDAUsuario.Usuario
+	cantidadLikes int
+	likes         TDADiccionario.DiccionarioOrdenado[string, TDAUsuario.Usuario]
 }
 
-func CrearPost(usuario string, contenido string, cant int) Post {
+func CrearPost(usuario TDAUsuario.Usuario, contenido string, cant int) Post {
 	nuevoPost := new(post)
 	nuevoPost.id = cant
 	nuevoPost.publicador = usuario
 	nuevoPost.contenido = contenido
-	nuevoPost.cantLikes = 0
-	nuevoPost.likes = TDADiccionario.CrearABB[string, string](strings.Compare)
+	nuevoPost.cantidadLikes = 0
+	nuevoPost.likes = TDADiccionario.CrearABB[string, TDAUsuario.Usuario](strings.Compare)
 
 	return nuevoPost
 }
@@ -29,7 +29,7 @@ func (post *post) ObtenerId() int {
 	return post.id
 }
 
-func (post *post) ObtenerPublicador() string {
+func (post *post) ObtenerPublicador() TDAUsuario.Usuario {
 	return post.publicador
 }
 
@@ -37,68 +37,17 @@ func (post *post) ObtenerContenido() string {
 	return post.contenido
 }
 
-func (post *post) ObtenerLikes() []int {
+func (post *post) ObtenerLikes() TDADiccionario.DiccionarioOrdenado[string, TDAUsuario.Usuario] {
 	return post.likes
 }
 
-func (post *post) VerUltimoPost() (int, string, string, int) {
-	if !algogram.HayLoggeado() || algogram.usuarioLoggeado.feed.Cantidad() == 0 {
-		fmt.Printf("Usuario no loggeado o no hay mas posts para ver\n")
-		return 0, "", "", 0
-	}
-
-	postFeed := algogram.usuarioLoggeado.feed.Desencolar()
-
-	return postFeed.post.id, postFeed.post.publicador.nombre, postFeed.post.contenido, postFeed.post.cantLikes // re feo jajaj
+func (post *post) ObtenerCantLikes() int {
+	return post.cantidadLikes
 }
 
-func (algogram *Algogram) LikearPost(id int) bool {
-	if !algogram.HayLoggeado() || id >= algogram.posts.Largo() || id < 0 {
-		fmt.Printf("Error: Usuario no loggeado o Post inexistente\n")
-		return false
+func (post *post) GuardarLike(nombre string, usuarioLoggeado TDAUsuario.Usuario) {
+	if !post.likes.Pertenece(nombre) {
+		post.likes.Guardar(nombre, usuarioLoggeado)
+		post.cantidadLikes++
 	}
-
-	iter := algogram.posts.Iterador()
-
-	for i := 0; i < id; i++ {
-		iter.Siguiente()
-	}
-
-	postActual := iter.VerActual()
-
-	if !postActual.likes.Pertenece(algogram.usuarioLoggeado.nombre) {
-		postActual.likes.Guardar(algogram.usuarioLoggeado.nombre, algogram.usuarioLoggeado)
-		postActual.cantLikes++
-	}
-
-	return true
 }
-
-func (algogram *Algogram) MostrarLikes(id int) ([]string, int) {
-	var likes []string
-	if id >= algogram.posts.Largo() || id < 0 {
-		fmt.Printf("Error: Post inexistente o sin likes\n")
-		return likes, 0
-	}
-
-	iter := algogram.posts.Iterador()
-
-	for i := 0; i < id; i++ {
-		iter.Siguiente()
-	}
-	postActual := iter.VerActual()
-	if postActual.cantLikes == 0 {
-		fmt.Printf("Error: Post inexistente o sin likes\n")
-		return likes, 0
-	}
-
-	iterLikes := postActual.likes.Iterador()
-	for iterLikes.HaySiguiente() {
-		nombreUsuario, _ := iterLikes.VerActual()
-		likes = append(likes, nombreUsuario)
-		iterLikes.Siguiente()
-	}
-
-	return likes, postActual.cantLikes
-}
-
