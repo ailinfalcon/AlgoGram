@@ -129,7 +129,7 @@ func ejecutarPublicarPost(algogram algogram.AlgoGram, parametro string) {
 
 func ejecutarVerProximoPost(algogram algogram.AlgoGram) {
 	post := algogram.VerProximoPost()
-	if algogram.HayLoggeado() && post.ObtenerContenido() != "" {
+	if algogram.HayLoggeado() && post != nil {
 		fmt.Printf(
 			"Post ID %d\n%v dijo: %v\nLikes: %d\n",
 			post.ObtenerId(), post.ObtenerPublicador(), post.ObtenerContenido(), post.ObtenerCantLikes(),

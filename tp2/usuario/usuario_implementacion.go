@@ -58,7 +58,7 @@ func igualdadPostFeed(dato1, dato2 *postFeed) int {
 	res := dato2.afinidad - dato1.afinidad
 
 	if res == 0 {
-	res = dato2.post.ObtenerId() - dato1.post.ObtenerId()
+		res = dato2.post.ObtenerId() - dato1.post.ObtenerId()
 	}
 	return res
 }
