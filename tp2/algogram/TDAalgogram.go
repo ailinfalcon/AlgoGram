@@ -1,5 +1,7 @@
 package TDAalgogram
 
+import TDAPost "tp2/post"
+
 type AlgoGram interface {
 
 	///
@@ -15,7 +17,7 @@ type AlgoGram interface {
 	PublicarPost(string) bool
 
 	//
-	VerProximoPost() (int, string, string, int)
+	VerProximoPost() TDAPost.Post
 
 	//
 	LikearPost(int) bool

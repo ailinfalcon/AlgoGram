@@ -3,24 +3,23 @@ package TDAPost
 import (
 	"strings"
 	TDADiccionario "tdas/diccionario"
-	TDAUsuario "tp2/usuario"
 )
 
 type post struct {
 	id            int
 	contenido     string
-	publicador    TDAUsuario.Usuario
+	publicador    string
 	cantidadLikes int
-	likes         TDADiccionario.DiccionarioOrdenado[string, TDAUsuario.Usuario]
+	likes         TDADiccionario.DiccionarioOrdenado[string, string]
 }
 
-func CrearPost(usuario TDAUsuario.Usuario, contenido string, cant int) Post {
+func CrearPost(nombreUsuario string, contenido string, cant int) Post {
 	nuevoPost := new(post)
 	nuevoPost.id = cant
-	nuevoPost.publicador = usuario
+	nuevoPost.publicador = nombreUsuario
 	nuevoPost.contenido = contenido
 	nuevoPost.cantidadLikes = 0
-	nuevoPost.likes = TDADiccionario.CrearABB[string, TDAUsuario.Usuario](strings.Compare)
+	nuevoPost.likes = TDADiccionario.CrearABB[string, string](strings.Compare)
 
 	return nuevoPost
 }
@@ -29,7 +28,7 @@ func (post *post) ObtenerId() int {
 	return post.id
 }
 
-func (post *post) ObtenerPublicador() TDAUsuario.Usuario {
+func (post *post) ObtenerPublicador() string {
 	return post.publicador
 }
 
@@ -37,7 +36,7 @@ func (post *post) ObtenerContenido() string {
 	return post.contenido
 }
 
-func (post *post) ObtenerLikes() TDADiccionario.DiccionarioOrdenado[string, TDAUsuario.Usuario] {
+func (post *post) ObtenerLikes() TDADiccionario.DiccionarioOrdenado[string, string] {
 	return post.likes
 }
 
@@ -45,7 +44,7 @@ func (post *post) ObtenerCantLikes() int {
 	return post.cantidadLikes
 }
 
-func (post *post) GuardarLike(nombre string, usuarioLoggeado TDAUsuario.Usuario) {
+func (post *post) GuardarLike(nombre string, usuarioLoggeado string) {
 	if !post.likes.Pertenece(nombre) {
 		post.likes.Guardar(nombre, usuarioLoggeado)
 		post.cantidadLikes++

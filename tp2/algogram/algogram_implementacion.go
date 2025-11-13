@@ -2,7 +2,6 @@ package TDAalgogram
 
 import (
 	"fmt"
-	"math"
 	TDADiccionario "tdas/diccionario"
 	TDALista "tdas/lista"
 	TDAPost "tp2/post"
@@ -13,11 +12,6 @@ type Algogram struct {
 	usuarios        TDADiccionario.Diccionario[string, TDAUsuario.Usuario]
 	usuarioLoggeado TDAUsuario.Usuario
 	posts           TDALista.Lista[TDAPost.Post]
-}
-
-type postFeed struct {
-	post     TDAPost.Post
-	afinidad int
 }
 
 func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) *Algogram {
@@ -66,15 +60,16 @@ func (algogram *Algogram) PublicarPost(contenido string) bool {
 		return false
 	}
 
-	post := TDAPost.CrearPost(algogram.usuarioLoggeado, contenido, algogram.posts.Largo())
+	post := TDAPost.CrearPost(algogram.usuarioLoggeado.ObtenerNombre(), contenido, algogram.posts.Largo())
 	algogram.posts.InsertarUltimo(post)
 
 	iter := algogram.usuarios.Iterador()
 	for iter.HaySiguiente() {
 		nombre, usuario := iter.VerActual()
 		if nombre != algogram.usuarioLoggeado.ObtenerNombre() {
-			postFeed := crearNuevoPostFeed(post, usuario.ObtenerAfinidad())
-			usuario.feed.Encolar(postFeed)
+			//postFeed := TDAUsuario.CrearPostFeed(post, ObtenerAfinidad())
+			usuario.AgregarPostFeed(post, usuario.ObtenerAfinidad())
+			// TDAUsuario.feed.Encolar(postFeed)
 		}
 		iter.Siguiente()
 	}
@@ -84,14 +79,14 @@ func (algogram *Algogram) PublicarPost(contenido string) bool {
 
 func (algogram *Algogram) VerProximoPost() TDAPost.Post {
 	if !algogram.HayLoggeado() || algogram.usuarioLoggeado.feed.Cantidad() == 0 {
+		// capaz agregar primitiva para saber si hay mas posts para ver ??? 
 		fmt.Printf("Usuario no loggeado o no hay mas posts para ver\n")
 		return nil
 	}
 
-	postFeed := algogram.usuarioLoggeado.feed.Desencolar()
-
+	postFeed := algogram.usuarioLoggeado.ObtenerPostFeed()
 	// return postFeed.post.id, postFeed.post.publicador.nombre, postFeed.post.contenido, postFeed.post.cantLikes
-	return postFeed.post
+	return postFeed
 }
 
 func (algogram *Algogram) MostrarLikes(id int) ([]string, int) {
@@ -135,7 +130,8 @@ func (algogram *Algogram) LikearPost(id int) bool {
 	}
 
 	postActual := iter.VerActual()
-	postActual.GuardarLike(algogram.usuarioLoggeado.ObtenerNombre(), algogram.usuarioLoggeado)
+	postActual.GuardarLike(algogram.usuarioLoggeado.ObtenerNombre(), algogram.usuarioLoggeado.ObtenerNombre())
+	// raro
 
 	return true
 }
@@ -163,22 +159,4 @@ func cargarUsuarios(us TDADiccionario.Diccionario[string, int]) TDADiccionario.D
 	}
 
 	return usuarios
-}
-
-func crearNuevoPostFeed(post TDAPost.Post, afinidad int) *postFeed {
-	nuevoPostFeed := new(postFeed)
-	nuevoPostFeed.post = post
-	nuevoPostFeed.afinidad = afinidad
-	return nuevoPostFeed
-}
-
-func igualdadPostFeed(dato1, dato2 *postFeed) int {
-	afinidad1 := math.Abs(float64(dato1.afinidad - dato1.post.ObtenerAutor().ObtenerAfinidad()))
-	afinidad2 := math.Abs(float64(dato2.afinidad - dato2.post.ObtenerAutor().ObtenerAfinidad()))
-	res := int(afinidad2 - afinidad1)
-
-	if res == 0 {
-		res = dato2.post.ObtenerId() - dato1.post.ObtenerId()
-	}
-	return res
 }
