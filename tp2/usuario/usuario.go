@@ -15,4 +15,7 @@ type Usuario interface {
 
 	//
 	ObtenerPostFeed() TDAPost.Post
+
+	//
+	TienePostFeed() bool
 }

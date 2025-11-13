@@ -78,8 +78,7 @@ func (algogram *Algogram) PublicarPost(contenido string) bool {
 }
 
 func (algogram *Algogram) VerProximoPost() TDAPost.Post {
-	if !algogram.HayLoggeado() || algogram.usuarioLoggeado.feed.Cantidad() == 0 {
-		// capaz agregar primitiva para saber si hay mas posts para ver ??? 
+	if !algogram.HayLoggeado() || !algogram.usuarioLoggeado.TienePostFeed() {
 		fmt.Printf("Usuario no loggeado o no hay mas posts para ver\n")
 		return nil
 	}

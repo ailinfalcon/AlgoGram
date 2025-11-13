@@ -132,14 +132,14 @@ func ejecutarVerProximoPost(algogram algogram.AlgoGram) {
 	if algogram.HayLoggeado() && post.ObtenerContenido() != "" {
 		fmt.Printf(
 			"Post ID %d\n%v dijo: %v\nLikes: %d\n",
-			id, publicador, contenido, cantLikes,
+			post.ObtenerId(), post.ObtenerPublicador(), post.ObtenerContenido(), post.ObtenerCantLikes(),
 		)
 	}
 }
 
 func ejecutarLikearPost(algogram algogram.AlgoGram, param string) {
 	num, _ := esNumero(param)
-	if algogram.LikearPost(num) { // falta chequear que el post exista
+	if algogram.LikearPost(num) {
 		fmt.Println("Post likeado")
 	}
 }
