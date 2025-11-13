@@ -14,7 +14,7 @@ type AlgoGram interface {
 	// Logout desloggea al usuario actual, devuelve true si se desloggeó el usuario o false en caso contrario.
 	Logout() bool
 
-	// PublicarPost crea un post con el contenido recibido por parámetro, devuelve true si se pudo publicar, 
+	// PublicarPost crea un post con el contenido recibido por parámetro, devuelve true si se pudo publicar,
 	// o false si no hay un usuario loggeado.
 	PublicarPost(string) bool
 

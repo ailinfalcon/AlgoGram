@@ -37,14 +37,14 @@ func CargarUsuarios(archivo *os.File) algogram.AlgoGram {
 	return algo
 }
 
-// 
+// ProcesarComandos separa el comando de los parametros recibidos, y ejecuta la función asociada al comando.
 func ProcesarComandos(algogram algogram.AlgoGram, linea string) {
 	comandos := guardarComandos()
 	cmd, params, _ := strings.Cut(linea, " ")
 	asignarComando(algogram, comandos, cmd, params)
 }
 
-// guardarComandos crea y devuelve un diccionario que relaciona el nombre de cada comando 
+// guardarComandos crea y devuelve un diccionario que relaciona el nombre de cada comando
 // con la primitiva de AlgoGram que lo implementa.
 func guardarComandos() dic.Diccionario[string, func(algogram.AlgoGram, string)] {
 	comandos := dic.CrearHash[string, func(algogram.AlgoGram, string)](func(a, b string) bool { return a == b })
@@ -90,8 +90,8 @@ func ejecutarVerProximoPost(algogram algogram.AlgoGram) {
 }
 
 func ejecutarLikearPost(algogram algogram.AlgoGram, param string) {
-	num, _ := esNumero(param)
-	if algogram.LikearPost(num) {
+	id, _ := esNumero(param)
+	if algogram.LikearPost(id) {
 		fmt.Println("Post likeado")
 	}
 }
