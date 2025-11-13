@@ -67,9 +67,7 @@ func (algogram *Algogram) PublicarPost(contenido string) bool {
 	for iter.HaySiguiente() {
 		nombre, usuario := iter.VerActual()
 		if nombre != algogram.usuarioLoggeado.ObtenerNombre() {
-			//postFeed := TDAUsuario.CrearPostFeed(post, ObtenerAfinidad())
-			usuario.AgregarPostFeed(post, usuario.ObtenerAfinidad())
-			// TDAUsuario.feed.Encolar(postFeed)
+			usuario.AgregarPostFeed(post, algogram.usuarioLoggeado.ObtenerAfinidad())
 		}
 		iter.Siguiente()
 	}

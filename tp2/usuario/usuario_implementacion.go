@@ -1,6 +1,7 @@
 package usuario
 
 import (
+	"math"
 	TDAHeap "tdas/cola_prioridad"
 	TDAPost "tp2/post"
 )
@@ -32,8 +33,9 @@ func (usuario *usuario) ObtenerNombre() string {
 	return usuario.nombre
 }
 
-func (usuario *usuario) AgregarPostFeed(post TDAPost.Post, afinidad int) {
-	postFeed := crearPostFeed(post, afinidad)
+func (usuario *usuario) AgregarPostFeed(post TDAPost.Post, afinidadPublicador int) {
+	afinidad := math.Abs(float64(usuario.afinidad - afinidadPublicador))
+	postFeed := crearPostFeed(post, int(afinidad))
 	usuario.feed.Encolar(postFeed)
 }
 
@@ -53,14 +55,10 @@ func crearPostFeed(post TDAPost.Post, afinidad int) *postFeed {
 }
 
 func igualdadPostFeed(dato1, dato2 *postFeed) int {
-	//afinidad1 := math.Abs(float64(dato1.afinidad - dato1.post.))
-	//afinidad2 := math.Abs(float64(dato2.afinidad - dato2.post.ObtenerPublicador().ObtenerAfinidad()))
-	//res := int(afinidad2 - afinidad1)
+	res := dato2.afinidad - dato1.afinidad
 
-	///if res == 0 {
-	//res = dato2.post.ObtenerId() - dato1.post.ObtenerId()
-	///}
-	//return res
-
-	return 0
+	if res == 0 {
+	res = dato2.post.ObtenerId() - dato1.post.ObtenerId()
+	}
+	return res
 }
