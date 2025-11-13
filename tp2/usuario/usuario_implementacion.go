@@ -17,9 +17,8 @@ type postFeed struct {
 	afinidad int
 }
 
-// Crea un usuario con el nombre y afinidad recibido por parametro,
-// y devuelve un puntero al usuario creado
-func CrearUsuario(nombreUsuario string, afinidadUsuario int) *usuario {
+// Crea un usuario con el nombre y afinidad recibido por parametro.
+func CrearUsuario(nombreUsuario string, afinidadUsuario int) Usuario {
 	return &usuario{
 		nombre:   nombreUsuario,
 		feed:     TDAHeap.CrearHeap[*postFeed](igualdadPostFeed),
@@ -27,29 +26,24 @@ func CrearUsuario(nombreUsuario string, afinidadUsuario int) *usuario {
 	}
 }
 
-// Devuelve la afinidad del usuario actual
 func (usuario *usuario) ObtenerAfinidad() int {
 	return usuario.afinidad
 }
 
-// Devuelve el nombre del usuario actual
 func (usuario *usuario) ObtenerNombre() string {
 	return usuario.nombre
 }
 
-// Agrega un nuevo post al feed del usuario actual.
 func (usuario *usuario) AgregarPostFeed(post TDAPost.Post, afinidadPublicador int) {
 	afinidad := math.Abs(float64(usuario.afinidad - afinidadPublicador))
 	postFeed := crearPostFeed(post, int(afinidad))
 	usuario.feed.Encolar(postFeed)
 }
 
-// Devuelve el siguiente post del feed del usuario actual
 func (usuario *usuario) ObtenerPostFeed() TDAPost.Post {
 	return usuario.feed.Desencolar().post
 }
 
-// Devuelve true si quedan post por ver en el feed, o false en caso contrario
 func (usuario *usuario) TienePostFeed() bool {
 	return usuario.feed.Cantidad() > 0
 }

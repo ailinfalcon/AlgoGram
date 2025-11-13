@@ -13,6 +13,7 @@ type post struct {
 	likes         TDADiccionario.DiccionarioOrdenado[string, string]
 }
 
+// Crear un nuevo post con el nombre de usuario, el contenido y el id recibido por parametro
 func CrearPost(nombreUsuario string, contenido string, cant int) Post {
 	nuevoPost := new(post)
 	nuevoPost.id = cant

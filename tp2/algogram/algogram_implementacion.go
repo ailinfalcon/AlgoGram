@@ -14,7 +14,7 @@ type Algogram struct {
 	posts           TDALista.Lista[TDAPost.Post]
 }
 
-func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) *Algogram {
+func CrearAlgogram(us TDADiccionario.Diccionario[string, int]) AlgoGram {
 	usuarios := cargarUsuarios(us)
 
 	return &Algogram{
@@ -85,6 +85,24 @@ func (algogram *Algogram) VerProximoPost() TDAPost.Post {
 	return postFeed
 }
 
+func (algogram *Algogram) LikearPost(id int) bool {
+	if !algogram.HayLoggeado() || id >= algogram.posts.Largo() || id < 0 {
+		fmt.Printf("Error: Usuario no loggeado o Post inexistente\n")
+		return false
+	}
+
+	iter := algogram.posts.Iterador()
+
+	for i := 0; i < id; i++ {
+		iter.Siguiente()
+	}
+
+	postActual := iter.VerActual()
+	postActual.AgregarLike(algogram.usuarioLoggeado.ObtenerNombre(), algogram.usuarioLoggeado.ObtenerNombre())
+
+	return true
+}
+
 func (algogram *Algogram) MostrarLikes(id int) ([]string, int) {
 	var likes []string
 	if id >= algogram.posts.Largo() || id < 0 {
@@ -111,24 +129,6 @@ func (algogram *Algogram) MostrarLikes(id int) ([]string, int) {
 	}
 
 	return likes, postActual.ObtenerCantLikes()
-}
-
-func (algogram *Algogram) LikearPost(id int) bool {
-	if !algogram.HayLoggeado() || id >= algogram.posts.Largo() || id < 0 {
-		fmt.Printf("Error: Usuario no loggeado o Post inexistente\n")
-		return false
-	}
-
-	iter := algogram.posts.Iterador()
-
-	for i := 0; i < id; i++ {
-		iter.Siguiente()
-	}
-
-	postActual := iter.VerActual()
-	postActual.AgregarLike(algogram.usuarioLoggeado.ObtenerNombre(), algogram.usuarioLoggeado.ObtenerNombre())
-
-	return true
 }
 
 func (algogram *Algogram) loggearUsuario(nombre string) {
