@@ -6,21 +6,22 @@ import (
 
 type Post interface {
 
-	// Devuelve el id del post actual.
+	// ObtenerId devuelve el id del post actual.
 	ObtenerId() int
 
-	// Devuelve el nombre del creador del post actual
+	// ObtenerPublicador devuelve el nombre del creador del post actual.
 	ObtenerPublicador() string
 
-	// Devuelve el contenido del post actual
+	// ObtenerContenido devuelve el contenido del post actual.
 	ObtenerContenido() string
 
-	// Devuelve un Diccionario Ordenado con los usuarios que le dieron like al post actual.
+	// ObtenerLikes devuelve un Diccionario Ordenado con los usuarios que le dieron like al post actual.
 	ObtenerLikes() TDADiccionario.DiccionarioOrdenado[string, string]
 
-	// Devuelve la cantidad de likes que tiene el post actual.
+	// ObtenerCantLikes devuelve la cantidad de likes que tiene el post actual.
 	ObtenerCantLikes() int
 
-	//
-	AgregarLike(string, string)
+	// AgregarLike añade un like al post actual y agrega a un Diccionario Ordenado el nombre del usuario
+	// recibido por parámetro.
+	AgregarLike(string)
 }

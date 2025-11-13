@@ -19,6 +19,8 @@ const (
 	_MOSTRAR_LIKES      = "mostrar_likes"
 )
 
+// CargarUsuarios recibe un archivo del cual agrega el contenido de cada línea como clave de un diccionario,
+// y como valor, el número de línea a la cual pertenece el contenido.
 func CargarUsuarios(archivo *os.File) algogram.AlgoGram {
 	s := bufio.NewScanner(archivo)
 	cantUsuarios := 0
@@ -35,12 +37,15 @@ func CargarUsuarios(archivo *os.File) algogram.AlgoGram {
 	return algo
 }
 
+// 
 func ProcesarComandos(algogram algogram.AlgoGram, linea string) {
 	comandos := guardarComandos()
 	cmd, params, _ := strings.Cut(linea, " ")
 	asignarComando(algogram, comandos, cmd, params)
 }
 
+// guardarComandos crea y devuelve un diccionario que relaciona el nombre de cada comando 
+// con la primitiva de AlgoGram que lo implementa.
 func guardarComandos() dic.Diccionario[string, func(algogram.AlgoGram, string)] {
 	comandos := dic.CrearHash[string, func(algogram.AlgoGram, string)](func(a, b string) bool { return a == b })
 
@@ -107,6 +112,9 @@ func imprimirUsuarios(likes []string) {
 	}
 }
 
+// asignarComando recibe un comando, un parámetro y un diccionario de comandos con su primitiva de
+// Algogram asociada. Si el comando recibido se encuentra en el diccionario, ejecuta la función
+// correspondiente. Caso contrario, imprime por pantalla el mensaje "Comando inválido".
 func asignarComando(algogram algogram.AlgoGram, comandos dic.Diccionario[string, func(algogram.AlgoGram, string)], comando, parametro string) {
 	if !comandos.Pertenece(comando) {
 		fmt.Printf("Comando inválido")

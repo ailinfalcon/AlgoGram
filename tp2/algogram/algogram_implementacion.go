@@ -98,7 +98,7 @@ func (algogram *Algogram) LikearPost(id int) bool {
 	}
 
 	postActual := iter.VerActual()
-	postActual.AgregarLike(algogram.usuarioLoggeado.ObtenerNombre(), algogram.usuarioLoggeado.ObtenerNombre())
+	postActual.AgregarLike(algogram.usuarioLoggeado.ObtenerNombre())
 
 	return true
 }
@@ -140,6 +140,8 @@ func (algogram *Algogram) desloggearUsuario() {
 	algogram.usuarioLoggeado = nil
 }
 
+// cargarUsuarios recibe un diccionario cuyas claves son nombres de usuarios y sus datos, su respectiva
+// afinidad. Crea un Usuario con estos campos, lo agrega a un nuevo diccionario y devuelve el mismo.
 func cargarUsuarios(us TDADiccionario.Diccionario[string, int]) TDADiccionario.Diccionario[string, TDAUsuario.Usuario] {
 	usuarios := TDADiccionario.CrearHash[string, TDAUsuario.Usuario](func(a, b string) bool { return a == b })
 

@@ -13,7 +13,7 @@ type post struct {
 	likes         TDADiccionario.DiccionarioOrdenado[string, string]
 }
 
-// Crear un nuevo post con el nombre de usuario, el contenido y el id recibido por parametro
+// Crea un nuevo post con el nombre de usuario, el contenido y el id recibido por parametro
 func CrearPost(nombreUsuario string, contenido string, cant int) Post {
 	nuevoPost := new(post)
 	nuevoPost.id = cant
@@ -45,9 +45,9 @@ func (post *post) ObtenerCantLikes() int {
 	return post.cantidadLikes
 }
 
-func (post *post) AgregarLike(nombre string, usuarioLoggeado string) {
-	if !post.likes.Pertenece(nombre) {
-		post.likes.Guardar(nombre, usuarioLoggeado)
+func (post *post) AgregarLike(usuarioLoggeado string) {
+	if !post.likes.Pertenece(usuarioLoggeado) {
+		post.likes.Guardar(usuarioLoggeado, usuarioLoggeado)
 		post.cantidadLikes++
 	}
 }
