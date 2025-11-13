@@ -82,7 +82,6 @@ func (algogram *Algogram) VerProximoPost() TDAPost.Post {
 	}
 
 	postFeed := algogram.usuarioLoggeado.ObtenerPostFeed()
-	// return postFeed.post.id, postFeed.post.publicador.nombre, postFeed.post.contenido, postFeed.post.cantLikes
 	return postFeed
 }
 
@@ -127,8 +126,7 @@ func (algogram *Algogram) LikearPost(id int) bool {
 	}
 
 	postActual := iter.VerActual()
-	postActual.GuardarLike(algogram.usuarioLoggeado.ObtenerNombre(), algogram.usuarioLoggeado.ObtenerNombre())
-	// raro
+	postActual.AgregarLike(algogram.usuarioLoggeado.ObtenerNombre(), algogram.usuarioLoggeado.ObtenerNombre())
 
 	return true
 }

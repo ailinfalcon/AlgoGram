@@ -22,5 +22,5 @@ type Post interface {
 	ObtenerCantLikes() int
 
 	//
-	GuardarLike(string, string)
+	AgregarLike(string, string)
 }

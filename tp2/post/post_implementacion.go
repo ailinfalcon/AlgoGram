@@ -44,7 +44,7 @@ func (post *post) ObtenerCantLikes() int {
 	return post.cantidadLikes
 }
 
-func (post *post) GuardarLike(nombre string, usuarioLoggeado string) {
+func (post *post) AgregarLike(nombre string, usuarioLoggeado string) {
 	if !post.likes.Pertenece(nombre) {
 		post.likes.Guardar(nombre, usuarioLoggeado)
 		post.cantidadLikes++

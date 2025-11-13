@@ -19,43 +19,9 @@ const (
 	_MOSTRAR_LIKES      = "mostrar_likes"
 )
 
-type parametro int
-
-const (
-	ninguno parametro = iota
-	texto
-	numero
-)
-
-type comando struct {
-	cmd       string
-	parametro parametro
-	// aplicar func(string) error
-}
-
-/*
-	var comandos = []string{
-		_LOGIN, _LOGOUT, _PUBLICAR, _VER_SIGUIENTE_FEED, _LIKEAR, _MOSTRAR_LIKES,
-	}
-*/
-var comandos = []comando{
-	{_LOGIN, texto}, {_LOGOUT, ninguno}, {_PUBLICAR, texto}, {_VER_SIGUIENTE_FEED, ninguno},
-	{_LIKEAR, numero}, {_MOSTRAR_LIKES, numero},
-}
-
-/*
-	var comandos = []comando{
-		{_LOGIN, texto, algogram.Login()},
-		{_LOGOUT, ninguno, algogram.Logout()},
-		{_PUBLICAR, texto, algogram.PublicarPost()},
-		{_VER_SIGUIENTE_FEED, ninguno, algogram.VerProximoPost()},
-		{_LIKEAR, numero, algogram.LikearPost()},
-		{_MOSTRAR_LIKES, numero, algogram.MostrarLikes()},
-	}
-*/
 func CargarUsuarios(archivo *os.File) algogram.AlgoGram {
 	s := bufio.NewScanner(archivo)
-	cantUsuarios := 0 //--> seria la afinidad
+	cantUsuarios := 0
 
 	usuarios := dic.CrearHash[string, int](func(a, b string) bool { return a == b })
 
@@ -70,41 +36,22 @@ func CargarUsuarios(archivo *os.File) algogram.AlgoGram {
 }
 
 func ProcesarComandos(algogram algogram.AlgoGram, linea string) {
-	/*
-		token := strings.Fields(linea)
-		cmd := token[0]
-		var params string
-
-		comando, esValido := buscarComando(cmd)
-		if comando.parametro != ninguno {
-			params = token[1]
-		}
-		if !esValido {
-
-		}
-	*/
-	cmd, params, _ := strings.Cut(linea, " ") // corta la linea en el primer " "
-	asignarComando(algogram, cmd, params)
+	comandos := guardarComandos()
+	cmd, params, _ := strings.Cut(linea, " ")
+	asignarComando(algogram, comandos, cmd, params)
 }
 
-// asignar comando con switch
+func guardarComandos() dic.Diccionario[string, func(algogram.AlgoGram, string)] {
+	comandos := dic.CrearHash[string, func(algogram.AlgoGram, string)](func(a, b string) bool { return a == b })
 
-func asignarComando(algogram algogram.AlgoGram, comando, parametro string) {
+	comandos.Guardar(_LOGIN, func(algoG algogram.AlgoGram, parametro string) { ejecutarLogin(algoG, parametro) })
+	comandos.Guardar(_LOGOUT, func(algoG algogram.AlgoGram, parametro string) { ejecutarLogout(algoG) })
+	comandos.Guardar(_PUBLICAR, func(algoG algogram.AlgoGram, parametro string) { ejecutarPublicarPost(algoG, parametro) })
+	comandos.Guardar(_VER_SIGUIENTE_FEED, func(algoG algogram.AlgoGram, parametro string) { ejecutarVerProximoPost(algoG) })
+	comandos.Guardar(_LIKEAR, func(algoG algogram.AlgoGram, parametro string) { ejecutarLikearPost(algoG, parametro) })
+	comandos.Guardar(_MOSTRAR_LIKES, func(algoG algogram.AlgoGram, parametro string) { ejecutarMostrarLikes(algoG, parametro) })
 
-	switch comando {
-	case _LOGIN:
-		ejecutarLogin(algogram, parametro)
-	case _LOGOUT:
-		ejecutarLogout(algogram)
-	case _PUBLICAR:
-		ejecutarPublicarPost(algogram, parametro)
-	case _VER_SIGUIENTE_FEED:
-		ejecutarVerProximoPost(algogram)
-	case _LIKEAR:
-		ejecutarLikearPost(algogram, parametro)
-	case _MOSTRAR_LIKES:
-		ejecutarMostrarLikes(algogram, parametro)
-	}
+	return comandos
 }
 
 func ejecutarLogin(algogram algogram.AlgoGram, parametro string) {
@@ -129,7 +76,7 @@ func ejecutarPublicarPost(algogram algogram.AlgoGram, parametro string) {
 
 func ejecutarVerProximoPost(algogram algogram.AlgoGram) {
 	post := algogram.VerProximoPost()
-	if algogram.HayLoggeado() && post.ObtenerContenido() != "" {
+	if algogram.HayLoggeado() && post != nil {
 		fmt.Printf(
 			"Post ID %d\n%v dijo: %v\nLikes: %d\n",
 			post.ObtenerId(), post.ObtenerPublicador(), post.ObtenerContenido(), post.ObtenerCantLikes(),
@@ -160,33 +107,13 @@ func imprimirUsuarios(likes []string) {
 	}
 }
 
-// funcionaria si el struct comando fuese de tipo genérico
-/*func asignarComando(algogram algogram.AlgoGram, comandoIngresado, parametro string) {
-	for _, comando := range comandos {
-		if comando.cmd == comandoIngresado {
-			if comando.parametro == ninguno {
-				comando.aplicar()
-			}
-			if comando.parametro == texto {
-				comando.aplicar(parametro)
-			}
-			if comando.parametro == numero {
-				num, _ := esNumero(comando.cmd)
-				comando.aplicar(num)
-			}
-		}
+func asignarComando(algogram algogram.AlgoGram, comandos dic.Diccionario[string, func(algogram.AlgoGram, string)], comando, parametro string) {
+	if !comandos.Pertenece(comando) {
+		fmt.Printf("Comando inválido")
+	} else {
+		ejecutar := comandos.Obtener(comando)
+		ejecutar(algogram, parametro)
 	}
-}
-*/
-
-func buscarComando(cmd string) (comando, bool) {
-	for _, comando := range comandos {
-		if comando.cmd == cmd {
-			return comando, true
-		}
-	}
-
-	return comando{}, false
 }
 
 func esNumero(param string) (int, bool) {
